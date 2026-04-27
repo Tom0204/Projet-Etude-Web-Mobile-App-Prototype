@@ -25,15 +25,7 @@
     </div>
 
     <!-- Graphique température -->
-    <div class="card delay-2 animate-fade-up">
-      <p class="section-label">Température — 24H</p>
-      <div class="chart-container">
-        <canvas ref="tempChartRef" height="110"></canvas>
-      </div>
-      <div class="chart-axis">
-        <span v-for="h in xLabels" :key="h" class="chart-tick">{{ h }}</span>
-      </div>
-    </div>
+    <Canva :dataGraph="tempData" :labels="label"></Canva>
 
     <!-- Humidité comparée -->
     <div class="card delay-3 animate-fade-up">
@@ -53,13 +45,7 @@
           </div>
           <span class="hum-value">{{ sensors.soilHumidity }}%</span>
         </div>
-        <div class="hum-row">
-          <span class="hum-label">Feuilles</span>
-          <div class="progress-bar flex-1">
-            <div class="progress-fill progress-fill--orange" :style="{ width: sensors.leafHumidity + '%' }"></div>
-          </div>
-          <span class="hum-value">{{ sensors.leafHumidity }}%</span>
-        </div>
+
       </div>
     </div>
   </div>
@@ -68,79 +54,27 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useSensorData } from '../../composables/useSensorData'
+import Canva from "../core/sensor/Canva.vue";
 
 const { sensors } = useSensorData()
 
-const tempChartRef = ref(null)
-// const tempChartRef = ref<HTMLCanvasElement| null>(null)
 
-let chartInstance: any = null
+const tempData = {
+  graph1: [7.2, 6.8, 6.4, 7.5, 10.1, 13.5, 16.2, 17.1, 16.5, 14.8, 12.7, 10.9, 9.4, 8.7, 8.1, 7.6],
+  graph1pred: [
+    ...Array(15).fill(null),
+    7.6,
+    21.4, 20.9, 20.1, 21.5, 17.8, 15.2, 28.9, 30.2, 29.7, 27.5, 25.4, 23.8, 22.1, 21.8, 21.5, 21.2
+  ],
+  graph2: [15.8, 15.2, 14.5, 13.8, 12.1, 10.4, 8.2, 7.1, 6.8, 6.5, 6.2, 5.9, 5.7, 5.5, 5.4, 5.2],
+  graph2pred: [
+    ...Array(15).fill(null),
+    5.2,
+    4.1, 7.4, 3.2, 5.8, 12.4, 25.6, 29.3, 23.0, 30, 25.1, 28.1, 15.3, 10.1, 8.4, 6.1, 6.5
+  ],
+}
+const label = ["Air","Sol"]
 
-const xLabels = ['00', '03', '06', '09', '12', '15', '18', '21', '24']
-
-const tempData = [6.8, 6.5, 6.2, 7.1, 9.4, 12.8, 15.6, 16.4, 15.9, 14.2, 12.1, 10.3, 9.1, 8.4, 7.9, 7.4]
-
-onMounted(async () => {
-  if (!tempChartRef.value) return
-  try {
-    const { Chart, registerables } = await import('chart.js')
-    Chart.register(...registerables)
-
-    chartInstance = new Chart(tempChartRef.value, {
-      type: 'line',
-      data: {
-        labels: Array.from({ length: 16 }, (_, i) => `${(i * 1.5).toFixed(0)}h`),
-        datasets: [{
-          data: tempData,
-          borderColor: '#60a5fa',
-          backgroundColor: 'rgba(96, 165, 250, 0.08)',
-          borderWidth: 2,
-          pointRadius: 3,
-          pointBackgroundColor: '#60a5fa',
-          pointBorderColor: '#1a1a1a',
-          pointBorderWidth: 1.5,
-          tension: 0.4,
-          fill: true,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: {
-          backgroundColor: '#242424',
-          titleColor: '#9a9590',
-          bodyColor: '#f0ede8',
-          borderColor: 'rgba(255,255,255,0.08)',
-          borderWidth: 1,
-          padding: 8,
-          callbacks: {
-            label: (ctx) => ` ${ctx.parsed.y}°C`
-          }
-        }},
-        scales: {
-          x: { display: false },
-          y: {
-            display: true,
-            grid: { color: 'rgba(255,255,255,0.04)' },
-            border: { display: false },
-            ticks: {
-              color: '#6b6760',
-              font: { size: 10 },
-              maxTicksLimit: 4,
-              callback: (v) => `${v}°`
-            }
-          }
-        }
-      }
-    })
-  } catch (e) {
-    console.error('Chart.js not available', e)
-  }
-})
-
-onUnmounted(() => {
-  chartInstance?.destroy()
-})
 </script>
 
 <style scoped lang="scss">
@@ -178,22 +112,7 @@ onUnmounted(() => {
   margin-left: 2px;
 }
 
-.chart-container {
-  height: 110px;
-  position: relative;
-}
 
-.chart-axis {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 6px;
-
-  .chart-tick {
-    font-size: 0.65rem;
-    color: var(--text-muted);
-    font-family: var(--font-mono);
-  }
-}
 
 .humidity-bars {
   display: flex;
