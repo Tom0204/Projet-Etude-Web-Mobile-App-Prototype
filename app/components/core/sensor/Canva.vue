@@ -5,6 +5,8 @@ import { useSensorData } from '../../../composables/useSensorData'
 const props = defineProps({
   dataGraph: { type: Object , required: true},
   labels: { type: Array<string>, required: true },
+  title: { type: String, required: true },
+  colors: { type: Array<string>, required: true },
 })
 
 
@@ -33,11 +35,11 @@ onMounted(async () => {
           {
             label: props.labels[0],
             data: props.dataGraph.graph1,
-            borderColor: '#60a5fa',
+            borderColor: props.colors[0],
             backgroundColor: 'rgba(96, 165, 250, 0.07)',
             borderWidth: 2,
             pointRadius: 3,
-            pointBackgroundColor: '#60a5fa',
+            pointBackgroundColor: props.colors[0],
             pointBorderColor: '#1a1a1a',
             pointBorderWidth: 1.5,
             tension: 0.4,
@@ -46,7 +48,7 @@ onMounted(async () => {
           {
             label: props.labels[0] + '_Forecast',
             data: props.dataGraph.graph1pred,
-            borderColor: 'rgba(96, 165, 250, 0.25)',
+            borderColor: props.colors[0]+'99',
             backgroundColor: 'rgba(96, 165, 250, 0.03)',
             borderWidth: 1.5,
             borderDash: [4, 4],
@@ -59,11 +61,11 @@ onMounted(async () => {
           {
             label: props.labels[1],
             data: props.dataGraph.graph2,
-            borderColor: '#f97316',
+            borderColor: props.colors[1],
             backgroundColor: 'rgba(249, 115, 22, 0.07)',
             borderWidth: 2,
             pointRadius: 3,
-            pointBackgroundColor: '#f97316',
+            pointBackgroundColor: props.colors[1],
             pointBorderColor: '#1a1a1a',
             pointBorderWidth: 1.5,
             tension: 0.4,
@@ -73,7 +75,7 @@ onMounted(async () => {
           {
             label: props.labels[1] + '_Forecast',
             data: props.dataGraph.graph2pred,
-            borderColor: 'rgba(249, 115, 22, 0.25)',
+            borderColor:  props.colors[1]+'99',
             backgroundColor: 'rgba(249, 115, 22, 0.03)',
             borderWidth: 1.5,
             borderDash: [4, 4],
@@ -131,14 +133,14 @@ onUnmounted(() => {
 <template>
   <div class="card delay-2 animate-fade-up">
     <div class="card-header">
-      <p class="section-label">Température — 24H</p>
+      <p class="section-label">{{ title }} — 24H</p>
       <div class="legend">
         <span class="legend-item">
-          <span class="legend-dot" style="background: #60a5fa"></span>
+          <span class="legend-dot" :style="`background: ${colors[0]} `"></span>
           {{ props.labels[0] }}
         </span>
         <span class="legend-item">
-          <span class="legend-dot" style="background: #f97316"></span>
+          <span class="legend-dot" :style="`background: ${colors[1]} `"></span>
           {{ props.labels[1] }}
         </span>
         <span class="legend-forecast">

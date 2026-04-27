@@ -15,14 +15,6 @@ export const useAppStore = defineStore('app', {
     alertPanelOpen: false,
     alerts: [
       {
-        id: 'alert-1',
-        type: 'warning' as const,
-        title: 'Alerte mildiou',
-        message: 'Probabilité élevée demain — conditions très favorables (Hum. 78%, T° 17°C)',
-        timestamp: new Date(),
-        read: false,
-      },
-      {
         id: 'alert-2',
         type: 'info' as const,
         title: 'Pluie prévue vendredi',

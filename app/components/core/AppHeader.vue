@@ -3,12 +3,6 @@
     <div class="status-bar">
       <span class="status-time">{{ time }}</span>
       <div class="status-icons">
-        <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
-          <rect x="0" y="3" width="3" height="9" rx="1" fill="currentColor" opacity="0.4"/>
-          <rect x="4.5" y="2" width="3" height="10" rx="1" fill="currentColor" opacity="0.6"/>
-          <rect x="9" y="0" width="3" height="12" rx="1" fill="currentColor"/>
-          <rect x="13.5" y="1" width="2.5" height="10" rx="1" fill="currentColor"/>
-        </svg>
         <svg width="15" height="12" viewBox="0 0 15 12" fill="none">
           <path d="M7.5 2.5C9.8 2.5 11.8 3.5 13.2 5.1L14.5 3.8C12.7 1.8 10.2 0.5 7.5 0.5C4.8 0.5 2.3 1.8 0.5 3.8L1.8 5.1C3.2 3.5 5.2 2.5 7.5 2.5Z" fill="currentColor" opacity="0.4"/>
           <path d="M7.5 5.5C9 5.5 10.3 6.1 11.3 7.1L12.6 5.8C11.2 4.4 9.4 3.5 7.5 3.5C5.6 3.5 3.8 4.4 2.4 5.8L3.7 7.1C4.7 6.1 6 5.5 7.5 5.5Z" fill="currentColor" opacity="0.7"/>
@@ -27,13 +21,21 @@
         <p v-if="subtitle" class="header-subtitle">{{ subtitle }}</p>
         <h1 class="header-title">{{ title }}</h1>
       </div>
-      <button v-if="showNotif" class="notif-btn" @click="$emit('notif')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-        </svg>
-        <span v-if="alertCount > 0" class="notif-badge">{{ alertCount }}</span>
-      </button>
+
+      <div class="header-actions">
+        <button  class="btn">
+          i
+        </button>
+
+        <button v-if="showNotif" class="btn" @click="$emit('notif')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span v-if="alertCount > 0" class="notif-badge">{{ alertCount }}</span>
+        </button>
+      </div>
+
     </div>
   </header>
 </template>
@@ -149,8 +151,12 @@ onUnmounted(() => clearInterval(timer))
   letter-spacing: -0.02em;
   color: var(--text-primary);
 }
+.header-actions {
+  display: flex;
+  gap: 7px;
+}
 
-.notif-btn {
+.btn {
   position: relative;
   width: 40px;
   height: 40px;

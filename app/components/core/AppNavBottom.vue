@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { BarChart2, Cloud, Activity, ShieldCheck } from 'lucide-vue-next'
+import { BarChart2, Cloud, Activity, AlignJustify   } from 'lucide-vue-next'
 
 const route = useRoute()
 
@@ -25,7 +25,7 @@ const tabs = [
   { to: '/',         label: 'Accueil',  icon: BarChart2 },
   { to: '/meteo',    label: 'Météo',    icon: Cloud },
   { to: '/capteurs', label: 'Capteurs', icon: Activity },
-  { to: '/sante',    label: 'Santé',    icon: ShieldCheck },
+  { to: '/parametre',    label: 'Paramètre',    icon: AlignJustify  },
 ]
 </script>
 

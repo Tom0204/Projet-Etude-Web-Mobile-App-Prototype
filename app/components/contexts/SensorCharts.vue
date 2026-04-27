@@ -1,53 +1,14 @@
 <template>
   <div class="sensor-charts">
     <!-- Grid capteurs -->
-    <div class="grid-2 animate-fade-up">
-      <div class="card sensor-card">
-        <p class="sensor-label">Temp. air</p>
-        <p class="sensor-value">{{ sensors.airTemp }}<span class="sensor-unit">°C</span></p>
-        <span class="badge badge--low">↑ +0.8°</span>
-      </div>
-      <div class="card sensor-card">
-        <p class="sensor-label">Temp. sol</p>
-        <p class="sensor-value">{{ sensors.soilTemp }}<span class="sensor-unit">°C</span></p>
-        <span class="badge badge--stable">Stable</span>
-      </div>
-      <div class="card sensor-card delay-1 animate-fade-up">
-        <p class="sensor-label">Hum. air</p>
-        <p class="sensor-value">{{ sensors.airHumidity }}<span class="sensor-unit">%</span></p>
-        <span class="badge badge--high">↑ Élevé</span>
-      </div>
-      <div class="card sensor-card delay-1 animate-fade-up">
-        <p class="sensor-label">Hum. sol</p>
-        <p class="sensor-value">{{ sensors.soilHumidity }}<span class="sensor-unit">%</span></p>
-        <span class="badge badge--low">Optimal</span>
-      </div>
-    </div>
+    <DailySumary :list="ActualStatA"/>
 
     <!-- Graphique température -->
-    <Canva :dataGraph="tempData" :labels="label"></Canva>
+    <Canva :dataGraph="tempData" :labels="label" title="Température" :colors="['#FF8C00','#0072FF']" ></Canva>
+
+    <Canva :dataGraph="humidData" :labels="label" title="Humidité" :colors="['#2ECC71','#E91E63']"></Canva>
 
     <!-- Humidité comparée -->
-    <div class="card delay-3 animate-fade-up">
-      <p class="section-label">Humidité comparée</p>
-      <div class="humidity-bars">
-        <div class="hum-row">
-          <span class="hum-label">Air</span>
-          <div class="progress-bar flex-1">
-            <div class="progress-fill progress-fill--blue" :style="{ width: sensors.airHumidity + '%' }"></div>
-          </div>
-          <span class="hum-value">{{ sensors.airHumidity }}%</span>
-        </div>
-        <div class="hum-row">
-          <span class="hum-label">Sol</span>
-          <div class="progress-bar flex-1">
-            <div class="progress-fill progress-fill--green" :style="{ width: sensors.soilHumidity + '%' }"></div>
-          </div>
-          <span class="hum-value">{{ sensors.soilHumidity }}%</span>
-        </div>
-
-      </div>
-    </div>
   </div>
 </template>
 
@@ -55,6 +16,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useSensorData } from '../../composables/useSensorData'
 import Canva from "../core/sensor/Canva.vue";
+import DailySumary from "../core/home/DailySumary.vue";
 
 const { sensors } = useSensorData()
 
@@ -73,7 +35,57 @@ const tempData = {
     4.1, 7.4, 3.2, 5.8, 12.4, 25.6, 29.3, 23.0, 30, 25.1, 28.1, 15.3, 10.1, 8.4, 6.1, 6.5
   ],
 }
+const humidData = {
+  graph1: [24.1, 23.8, 23.5, 24.2, 26.4, 28.1, 30.5, 31.8, 31.2, 29.5, 27.8, 26.2, 25.4, 24.9, 24.5, 24.2],
+  graph1pred: [
+    ...Array(15).fill(null),
+    24.2,
+    32.5, 31.9, 31.2, 30.4, 28.7, 26.5, 24.2, 22.8, 21.5, 20.9, 20.1, 19.4, 18.8, 18.5, 18.2, 18.0
+  ],
+  graph2: [26.5, 26.7, 26.4, 26.8, 27.2, 27.5, 27.9, 28.1, 28.0, 27.8, 27.5, 27.2, 26.9, 26.7, 26.5, 26.4],
+  graph2pred: [
+    ...Array(15).fill(null),
+    26.4,
+    22.4, 23.1, 24.5, 27.8, 30.2, 32.5, 34.1, 35.2, 34.8, 33.1, 30.5, 28.2, 26.4, 25.1, 24.2, 23.5
+  ],
+}
+
+
 const label = ["Air","Sol"]
+const celciusInterval = [15,22,30]
+const returnLevelCelcius = (degreeCelcius: number ) => {
+  switch (true) {
+    case degreeCelcius < celciusInterval[0]:
+      return [1,"froid"]
+    case degreeCelcius < celciusInterval[1]:
+      return [0,"normal"]
+    case degreeCelcius < celciusInterval[2]:
+      return [3,"chaud"]
+    default:
+      return [4,"élevé !"]
+  }
+}
+const humidityInterval = [15,30,40]
+const returnLevelHumidity = (tauxHumidity: number ) => {
+  switch (true) {
+    case tauxHumidity < humidityInterval[0]:
+      return [4,"Sec"]
+    case tauxHumidity < humidityInterval[1]:
+      return [1,"normal"]
+    case tauxHumidity < humidityInterval[2]:
+      return [3,"Saturation"]
+    default:
+      return [4,"Élevé !"]
+  }
+}
+
+const ActualStatA = ref([
+  { label: 'Température sol', value: sensors.value.soilTemp ,unit :'°C' , badgeText: returnLevelCelcius(sensors.value.soilTemp)[1],badgeLevel: returnLevelCelcius(sensors.value.soilTemp)[0] },
+  { label: 'Température air', value: sensors.value.airTemp ,unit :'°C', badgeText:  returnLevelCelcius(sensors.value.airTemp)[1],badgeLevel: returnLevelCelcius(sensors.value.airTemp)[0] },
+  { label: 'Humidité sol', value: sensors.value.soilHumidity,unit :'%', badgeText: returnLevelHumidity(sensors.value.soilHumidity)[1],badgeLevel: returnLevelHumidity(sensors.value.soilHumidity)[0]},
+  { label: 'Humidité air', value: sensors.value.airHumidity ,unit : '%', badgeText: returnLevelHumidity(sensors.value.airHumidity)[1] ,badgeLevel: returnLevelHumidity(sensors.value.airHumidity)[0] },
+
+])
 
 </script>
 

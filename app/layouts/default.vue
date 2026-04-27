@@ -29,7 +29,7 @@ const pages: Record<string, { title: string; subtitle?: string; showNotif?: bool
   '/':         { title: 'Bonjour, Julien 👋', showNotif: true },
   '/meteo':    { title: 'Météo', subtitle: 'Yvetot — Normandie' },
   '/capteurs': { title: 'Capteurs & données', subtitle: 'Parcelle A — dernières 24h' },
-  '/sante':    { title: 'Santé des cultures', subtitle: 'Analyse prédictive IA' },
+  '/parametre':    { title: 'Paramètre & Comptes ', subtitle: 'Données personnelles et configuration' },
 }
 
 
