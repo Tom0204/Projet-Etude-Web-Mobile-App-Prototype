@@ -72,7 +72,7 @@ const sensorCard =  computed(() =>([
 ]))
 
 const tempData = {
-  graph1: [7.2, 6.8, 6.4, 7.5, 10.1, 13.5, 16.2, 17.1, 16.5, 14.8, 12.7, 10.9, 9.4, 8.7, 8.1, 7.6],
+  graph1: [7.2, 6.8, 6.4, 7.5, 10.1, 13.5, 16.2, 17.1, 16.5, 14.8, 12.7, 10.9, 9.4, 8.7, 8.1, lastSensor.value?.temperature_c],
   graph1pred: [
     ...Array(15).fill(null),
     lastSensor.value?.temperature_c,
@@ -86,7 +86,7 @@ const tempData = {
   ],
 }
 const humidData = {
-  graph1: [24.1, 23.8, 23.5, 24.2, 26.4, 28.1, 30.5, 31.8, 31.2, 29.5, 27.8, 26.2, 25.4, 24.9, 24.5, 24.2],
+  graph1: [24.1, 23.8, 23.5, 24.2, 26.4, 28.1, 30.5, 31.8, 31.2, 29.5, 27.8, 26.2, 25.4, 24.9, 24.5, lastSensor.value?.humidity_pct],
   graph1pred: [
     ...Array(15).fill(null),
     lastSensor.value?.humidity_pct,
