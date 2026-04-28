@@ -8,7 +8,6 @@
 
     <Canva :dataGraph="humidData" :labels="label" title="Humidité" :colors="['#2ECC71','#E91E63']"></Canva>
 
-    <!-- Humidité comparée -->
   </div>
 </template>
 
@@ -23,17 +22,25 @@ const { sensors } = useSensorData()
 
 
 interface Sensor {
-  temperature_c: number
-  humidity_pct: number
+  timestamp: string
+  sensor_id: string
+  temperature_c: string  // ← string !
+  humidity_pct: string   // ← string !
+  soil_moisture_pct: string
+  soil_ph: string
 }
 
-const { data: lastSensor, pending, error, refresh } = useFetch<Sensor>(
-    'http://127.0.0.1:8000/sensors/latest',
+
+const api = '10.111.1.37:8080' //! ICI API
+const { data: ListLastSensor, pending, error, refresh } = useFetch<Array<Sensor>>(
+    `http://${api}/sensors/?limit=24`,
     {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     }
+
 )
+
 
 const label = ["Air","Sol"]
 const badgeC = ["Froid","Optimal","Chaud","Élevé !"]
@@ -41,6 +48,7 @@ const badgeH = ["Sec","Optimal","Saturation","Élevé !"]
 const badgeN = ["Carence","Optimal","Surdosage","Élevé !"]
 
 const cI = [15,22,30]
+const cSI = [10,15,20]
 const hI = [15,30,40]
 const nI = [40,90,100]
 
@@ -56,50 +64,73 @@ const returnLevel = (value: number ,interval:Array<number>, badge :Array<string>
       return [4,badge[3]]
   }
 }
-const sensorCard =  computed(() =>([
-  {
-    label: 'Température air',
-    value: lastSensor.value?.temperature_c ,
-    unit :'°C' ,
-    badgeText: returnLevel( lastSensor.value?.temperature_c ?? 0,cI,badgeC)[1],
-    badgeLevel: returnLevel( lastSensor.value?.temperature_c ?? 0,cI,badgeC)[0]
-  },
-  { label: 'Température sol', value: sensors.value.soilTemp ,unit :'°C', badgeText: returnLevel(sensors.value.soilTemp,cI,badgeC)[1],badgeLevel: returnLevel(sensors.value.soilTemp,cI,badgeC)[0] },
-  { label: 'Humidité air', value:  lastSensor.value?.humidity_pct ,unit : '%', badgeText: returnLevel(lastSensor.value?.humidity_pct ?? 0,hI,badgeH)[1] ,badgeLevel: returnLevel(lastSensor.value?.humidity_pct ?? 0,hI,badgeH)[0] },
-  { label: 'Humidité sol', value: sensors.value.soilHumidity,unit :'%', badgeText: returnLevel(sensors.value.soilHumidity,hI,badgeH)[1],badgeLevel: returnLevel(sensors.value.soilHumidity,hI,badgeH)[0]},
-  { label: 'Nutriments', value: sensors.value.nutrition ,unit : '%', badgeText: returnLevel(sensors.value.nutrition,nI,badgeN)[1] ,badgeLevel: returnLevel(sensors.value.nutrition,nI,badgeN)[0] },
 
-]))
 
-const tempData = {
-  graph1: [7.2, 6.8, 6.4, 7.5, 10.1, 13.5, 16.2, 17.1, 16.5, 14.8, 12.7, 10.9, 9.4, 8.7, 8.1, lastSensor.value?.temperature_c],
-  graph1pred: [
-    ...Array(15).fill(null),
-    lastSensor.value?.temperature_c,
-    21.4, 20.9, 20.1, 21.5, 17.8, 15.2, 28.9, 30.2, 29.7, 27.5, 25.4, 23.8, 22.1, 21.8, 21.5, 21.2
-  ],
-  graph2: [15.8, 15.2, 14.5, 13.8, 12.1, 10.4, 8.2, 7.1, 6.8, 6.5, 6.2, 5.9, 5.7, 5.5, 5.4, 5.2],
-  graph2pred: [
-    ...Array(15).fill(null),
-    5.2,
-    4.1, 7.4, 3.2, 5.8, 12.4, 25.6, 29.3, 23.0, 30, 25.1, 28.1, 15.3, 10.1, 8.4, 6.1, 6.5
-  ],
-}
-const humidData = {
-  graph1: [24.1, 23.8, 23.5, 24.2, 26.4, 28.1, 30.5, 31.8, 31.2, 29.5, 27.8, 26.2, 25.4, 24.9, 24.5, lastSensor.value?.humidity_pct],
-  graph1pred: [
-    ...Array(15).fill(null),
-    lastSensor.value?.humidity_pct,
-    32.5, 31.9, 31.2, 30.4, 28.7, 26.5, 24.2, 22.8, 21.5, 20.9, 20.1, 19.4, 18.8, 18.5, 18.2, 18.0
-  ],
-  graph2: [26.5, 26.7, 26.4, 26.8, 27.2, 27.5, 27.9, 28.1, 28.0, 27.8, 27.5, 27.2, 26.9, 26.7, 26.5, 26.4],
-  graph2pred: [
-    ...Array(15).fill(null),
-    26.4,
-    22.4, 23.1, 24.5, 27.8, 30.2, 32.5, 34.1, 35.2, 34.8, 33.1, 30.5, 28.2, 26.4, 25.1, 24.2, 23.5
-  ],
-}
+const sensorCard = ref([{}])
+const tempData = ref({})
+const humidData = ref({})
 
+
+const listpred = ref([
+  12.45, 87.12, 34.09, 56.78, 91.23, 4.56,
+  67.89, 23.45, 8.91, 45.67, 78.12, 10.34,
+  55.21, 99.04, 32.18, 14.76, 62.33, 41.50,
+  7.29, 88.65, 19.82, 53.47, 71.11,50
+])
+const listpred2 = ref([
+  12.45, 87.12, 34.09, 56.78, 91.23, 4.56,
+  67.89, 23.45, 8.91, 45.67, 78.12, 10.34,
+  55.21, 99.04, 32.18, 14.76, 62.33, 41.50,
+  7.29, 88.65, 19.82, 53.47, 71.11 , 50
+])
+
+
+watch(ListLastSensor, (val) => {
+  if (!val) return
+  const len = val.length
+  tempData.value = {
+    graph1: val.map(({ temperature_c }) => parseFloat(temperature_c)).reverse(),
+    graph1pred: [
+            ...Array(len - 1).fill(null),
+      parseFloat(val[0]?.temperature_c ?? '0'), ...listpred.value
+    ],
+    // graph2: [15.8, 15.2, 14.5, 13.8, 12.1, 10.4, 8.2, 7.1, 6.8, 6.5],
+    // graph2pred: [...Array(15).fill(null),
+    //   6.5,
+    //   5.2, 4.1, 7.4, 3.2, 5.8, 12.4, 25.6, 29.3, 23.0
+    // ],
+  }
+
+  humidData.value = {
+    graph1: val.map(({ humidity_pct }) => parseFloat(humidity_pct)).reverse(),
+    graph1pred: [...Array(len - 1).fill(null),
+      parseFloat(val[0]?.humidity_pct ?? '0'),
+      ...listpred2.value
+    ],
+    // graph2: [26.5, 26.7, 26.4, 26.8, 27.2, 27.5, 27.9, 28.1],
+    // graph2pred: [
+    //   ...Array(15).fill(null),
+    //   26.4, 22.4, 23.1, 24.5, 27.8, 30.2, 32.5
+    // ],
+  }
+
+
+  sensorCard.value= [{
+      label: 'Température air',
+      value: ListLastSensor.value?.[0]?.temperature_c,
+      unit :'°C' ,
+      badgeText: returnLevel(  parseFloat(ListLastSensor.value?.[0]?.temperature_c ?? '0'),cI,badgeC)[1],
+      badgeLevel: returnLevel(  parseFloat(ListLastSensor.value?.[0]?.temperature_c ?? '0'),cI,badgeC)[0]
+    },
+    { label: 'Température sol', value: sensors.value.soilTemp ,unit :'°C', badgeText: returnLevel(sensors.value.soilTemp,cSI,badgeC)[1],bageLevel: returnLevel(sensors.value.soilTemp,cSI,badgeC)[0] },
+    { label: 'Humidité air', value:   ListLastSensor.value?.[0]?.humidity_pct ,unit : '%', badgeText: returnLevel( parseFloat(ListLastSensor.value?.[0]?.humidity_pct ?? '0'),hI,badgeH)[1] ,badgeLevel: returnLevel( parseFloat(ListLastSensor.value?.[0]?.humidity_pct ?? '0'),hI,badgeH)[0] },
+    { label: 'Humidité sol', value: sensors.value.soilHumidity,unit :'%', badgeText: returnLevel(sensors.value.soilHumidity,hI,badgeH)[1],badgeLevel: returnLevel(sensors.value.soilHumidity,hI,badgeH)[0]},
+    { label: 'Nutriments', value: sensors.value.nutrition ,unit : '%', badgeText: returnLevel(sensors.value.nutrition,nI,badgeN)[1] ,badgeLevel: returnLevel(sensors.value.nutrition,nI,badgeN)[0] },
+
+  ]
+  console.log(tempData.value)
+  console.log(sensorCard.value)
+})
 
 
 

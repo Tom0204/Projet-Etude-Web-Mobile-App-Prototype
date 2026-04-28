@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+﻿c<script setup lang="ts">
 import {h, ref} from 'vue' ;
 import ClassicCard from "../containers/ClassicCard.vue";
 import ElevatedCard from "../containers/ElevatedCard.vue";

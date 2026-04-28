@@ -20,18 +20,46 @@ const navItems = [
   { to: '/',         label: 'Alertes',  sub: `${store.unreadCount} notifications`, icon: MapPin, color: '#dc2626' },
 ]
 
-const DailyStat = ref([
-  { label: 'Température', value: sensors.value.airTemp ,unit :'°C', status: 'Normal', badgeText: 'neutral',badgeLevel: 2 },
-  { label: 'Humidité sol', value: sensors.value.soilHumidity,unit :'%', status: 'Modéré', badgeText: 'medium',badgeLevel: 3 },
-  { label: 'Humidité air', value: sensors.value.airHumidity ,unit : '%', status: 'Élevé', badgeText: 'high',badgeLevel: 4 },
-  { label: 'Nutriments', value: sensors.value.nutrition, unit :'%', status: 'Bon état', badgeText: 'fine',badgeLevel: 0 },
-])
+
+//*-----------------------------------------------Sensor // temp / hum --------------------------------------------------
+
+interface Sensor {
+  timestamp: string
+  sensor_id: string
+  temperature_c: string  // ← string !
+  humidity_pct: string   // ← string !
+  soil_moisture_pct: string
+  soil_ph: string
+}
+const api = '10.111.1.37:8080' //! ICI API
+const { data: lastSensor, pending, error, refresh } = useFetch<Sensor>(
+    `http://${api}/sensors/latest`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }
+)
+
+const DailyStat = ref([{}])
 
 
-const { data , pending , error } = useFetch('http://127.0.0.1:8000/weather')
-const test = watch(data, (newVal) => {
-   console.log('Data updated:', newVal);
+
+watch(lastSensor, (val) => {
+  if (!val) return
+
+  console.log(val)
+
+  DailyStat.value = [
+    { label: 'Température', value: val.temperature_c ,unit :'°C', status: 'Normal', badgeText: 'neutral',badgeLevel: 2 },
+    { label: 'Humidité sol', value: val.humidity_pct,unit :'%', status: 'Modéré', badgeText: 'medium',badgeLevel: 3 },
+    { label: 'Humidité air', value: sensors.value.airHumidity ,unit : '%', status: 'Élevé', badgeText: 'high',badgeLevel: 4 },
+    { label: 'Nutriments', value: sensors.value.nutrition, unit :'%', status: 'Bon état', badgeText: 'fine',badgeLevel: 0 },
+  ]
+
 })
+
+
+
 </script>
 
 <template>

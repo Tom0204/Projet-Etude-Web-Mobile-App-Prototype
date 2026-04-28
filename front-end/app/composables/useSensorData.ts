@@ -1,5 +1,6 @@
 import { ref, readonly } from 'vue'
 
+
 export interface SensorData {
   airTemp: number
   soilTemp: number

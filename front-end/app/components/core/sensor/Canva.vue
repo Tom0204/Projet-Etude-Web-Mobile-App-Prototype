@@ -1,5 +1,5 @@
 ﻿<script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useSensorData } from '../../../composables/useSensorData'
 
 const props = defineProps({
@@ -16,11 +16,21 @@ const tempChartRef = ref(null)
 
 let chartInstance: any = null
 
+watch(() => props.dataGraph, (newData) => {
+  if (!chartInstance || !newData) return
+
+  chartInstance.data.datasets[0].data = newData.graph1
+  chartInstance.data.datasets[1].data = newData.graph1pred
+  chartInstance.data.datasets[2].data = newData.graph2
+  chartInstance.data.datasets[3].data = newData.graph2pred
+
+  chartInstance.update()
+}, { deep: true })
+
 const xLabels = ['00', '03', '06', '09', '12', '15', '18', '21', '24', '27', '30', '33', '36', '39', '42', '45', '48']
 
 
-const allLabels = Array.from({ length: 32 }, (_, i) => `${(i * 1.5).toFixed(0)}h`)
-
+const allLabels = Array.from({ length: 48 }, (_, i) => `${i}h`)
 onMounted(async () => {
   if (!tempChartRef.value) return
   try {
