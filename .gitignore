@@ -94,3 +94,9 @@ temp/
 
 # FastAPI / Uvicorn
 *.pid
+back-end/venv/Lib/site-packages/colorama/tests/__pycache__/ansitowin32_test.cpython-311.pyc
+*.pyc
+back-end/venv/Lib/site-packages/dotenv/__pycache__/__init__.cpython-311.pyc
+*.pyc
+*.pyc
+*.pyc
