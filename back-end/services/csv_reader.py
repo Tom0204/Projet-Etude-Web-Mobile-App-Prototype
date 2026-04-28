@@ -30,7 +30,7 @@ def select_fields(rows: list[dict], fields: Optional[list[str]]) -> list[dict]:
 
 
 def paginate(rows: list[dict], limit: int, offset: int) -> list[dict]:
-    return rows[-offset: -offset - limit:-1]
+    return rows[-offset-1: -offset-limit:-1]
 
 
 def apply_date_filter(
