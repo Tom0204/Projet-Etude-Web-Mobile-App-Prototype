@@ -4,9 +4,9 @@
     <DailySumary :liste="sensorCard"/>
 
     <!-- Graphique température -->
-    <Canva :dataGraph="tempData" :labels="label" title="Température" :colors="['#FF8C00','#0072FF']" ></Canva>
+    <Canva :dataGraph="tempData" :labels="label" title="Température" :colors="['#FF8C00','#0072FF']" symbol="°C"></Canva>
 
-    <Canva :dataGraph="humidData" :labels="label" title="Humidité" :colors="['#2ECC71','#E91E63']"></Canva>
+    <Canva :dataGraph="humidData" :labels="label" title="Humidité" :colors="['#2ECC71','#E91E63']" symbol="%"></Canva>
 
   </div>
 </template>
@@ -23,16 +23,13 @@ const { sensors } = useSensorData()
 
 interface Sensor {
   timestamp: string
-  sensor_id: string
   temperature_c: string  // ← string !
   humidity_pct: string   // ← string !
-  soil_moisture_pct: string
-  soil_ph: string
 }
 
 
-const api = '10.111.1.37:8080' //! ICI API
-const { data: ListLastSensor, pending, error, refresh } = useFetch<Array<Sensor>>(
+const api = 'localhost:8000' //! ICI API
+const { data: ListLastSensor } = useFetch<Array<Sensor>>(
     `http://${api}/sensors/?limit=24`,
     {
       method: 'GET',
@@ -41,8 +38,23 @@ const { data: ListLastSensor, pending, error, refresh } = useFetch<Array<Sensor>
 
 )
 
+const { data: ListPredictTemp } = useFetch<Array<Number>>(
+   `http://${api}/sensors/temperature/prediction`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }
+)
 
-const label = ["Air","Sol"]
+const { data: ListPredictHum } = useFetch<Array<Number>>(
+   `http://${api}/sensors/humidity/prediction`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }
+)
+
+const label = ["Actuelle"]
 const badgeC = ["Froid","Optimal","Chaud","Élevé !"]
 const badgeH = ["Sec","Optimal","Saturation","Élevé !"]
 const badgeN = ["Carence","Optimal","Surdosage","Élevé !"]
@@ -84,6 +96,17 @@ const listpred2 = ref([
   7.29, 88.65, 19.82, 53.47, 71.11 , 50
 ])
 
+watch(ListPredictTemp, (val) => {
+  if (val != null) {
+    listpred.value = val
+  }
+})
+
+watch(ListPredictHum, (val) => {
+  if (val != null) {
+    listpred2.value = val
+  }
+})
 
 watch(ListLastSensor, (val) => {
   if (!val) return

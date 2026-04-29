@@ -31,7 +31,7 @@ interface Sensor {
   soil_moisture_pct: string
   soil_ph: string
 }
-const api = '10.111.1.37:8080' //! ICI API
+const api = 'localhost:8000' //! ICI API
 const { data: lastSensor, pending, error, refresh } = useFetch<Sensor>(
     `http://${api}/sensors/latest`,
     {

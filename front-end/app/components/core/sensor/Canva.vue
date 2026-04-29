@@ -7,6 +7,7 @@ const props = defineProps({
   labels: { type: Array<string>, required: true },
   title: { type: String, required: true },
   colors: { type: Array<string>, required: true },
+  symbol: { type: String, required: false, default: () => "" }
 })
 
 
@@ -62,8 +63,10 @@ onMounted(async () => {
             backgroundColor: 'rgba(96, 165, 250, 0.03)',
             borderWidth: 1.5,
             borderDash: [4, 4],
-            pointRadius: 0,
-            pointHoverRadius: 2,
+            pointRadius: 3,
+            pointBackgroundColor: props.colors[0]+'99',
+            pointBorderColor: '#1a1a1a',
+            pointBorderWidth: 1.5,
             tension: 0.4,
             fill: true,
           },
@@ -108,9 +111,8 @@ onMounted(async () => {
             borderColor: 'rgba(255,255,255,0.08)',
             borderWidth: 1,
             padding: 8,
-            filter: (item) => !item.dataset.label?.endsWith('_Forecast'),
             callbacks: {
-              label: (ctx) => ` ${ctx.dataset.label}  ${ctx.parsed.y}°C`
+              label: (ctx) => ` ${ctx.dataset.label}  ${ctx.parsed.y}${props.symbol}`
             }
           }
         },
@@ -148,10 +150,6 @@ onUnmounted(() => {
         <span class="legend-item">
           <span class="legend-dot" :style="`background: ${colors[0]} `"></span>
           {{ props.labels[0] }}
-        </span>
-        <span class="legend-item">
-          <span class="legend-dot" :style="`background: ${colors[1]} `"></span>
-          {{ props.labels[1] }}
         </span>
         <span class="legend-forecast">
           <span class="legend-dash"></span>
